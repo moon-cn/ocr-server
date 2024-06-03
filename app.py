@@ -2,8 +2,13 @@ import time
 
 from flask import Flask, render_template, request
 
+import orc_util
+import os
+
 app = Flask(__name__)
 
+if not os.path.exists("uploads"):
+    os.makedirs("uploads")
 
 @app.route('/')
 def home():
@@ -12,31 +17,18 @@ def home():
     return render_template("index.html")
 
 
-
 @app.route('/upload', methods=['POST'])
 def upload():
-    files = request.files.getlist("files")
-    list = []
-    for file in files:
-        pdf_path = "uploads/" + str(time.time())
-        file.save(pdf_path)
+    file = request.files['file']
+    # 确保上传文件夹存在
 
 
-        info['文件名称'] = file.filename
+    pdf_path = "uploads/temp_" + str(time.time()) + "_" + file.filename
+    file.save(pdf_path)
+    result = orc_util.parse(pdf_path)
+    os.remove(pdf_path)
 
-
-        list.append(info)
-
-    print(list)
-
-
-    return render_template("result.html",
-                           list=list,
-                           cols=json.dumps(INV_KEYS, ensure_ascii=False),
-                           data=json.dumps(list, ensure_ascii=False),
-                           python_version=python_version
-                           )
-
+    return result
 
 
 if __name__ == '__main__':
