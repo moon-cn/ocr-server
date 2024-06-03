@@ -1,3 +1,4 @@
+import sys
 import time
 
 from flask import Flask, render_template, request
@@ -14,7 +15,24 @@ if not os.path.exists("uploads"):
 def home():
     ip = request.remote_addr
     print('请求首页', ip)
-    return render_template("index.html")
+    import platform
+
+    # 获取操作系统名称
+    os_name = platform.system()
+    # 获取操作系统版本
+    os_version = platform.version()
+    # 获取操作系统位数
+    os_arch = platform.architecture()[0]
+
+    print(f"版本: {os_version}")
+    print(f"位数: {os_arch}")
+    info = {
+        "操作系统": os_name + " " + os_version + " " + os_arch,
+        "Python 版本": sys.version,
+        "ip": ip,
+
+    }
+    return render_template("index.html", info=info)
 
 
 @app.route('/upload', methods=['POST'])
